@@ -12,7 +12,7 @@ export default {
 	},
 	// 商品分类
 	[RECEIVE_CATEGORIES](state, categories) {
-		state.categorys = categories;
+		state.categories = categories;
 	},
 	// 商铺列表
 	[RECEIVE_SHOPS](state, shops) {

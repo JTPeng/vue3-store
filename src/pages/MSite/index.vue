@@ -13,104 +13,17 @@
     <nav class="msite_nav">
       <div class="swiper-container">
         <div class="swiper-wrapper">
-          <div class="swiper-slide">
-            <a href="javascript:" class="link_to_food">
+          <div class="swiper-slide" v-for="(caterories, index) in categoryArr" :key="index">
+            <a
+              href="javascript:"
+              class="link_to_food"
+              v-for="(category, index) in caterories"
+              :key="index"
+            >
               <div class="food_container">
-                <img src="./images/nav/1.jpg" />
+                <img :src="`https://fuss10.elemecdn.com${category.image_url}`" />
               </div>
-              <span>甜品饮品</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/2.jpg" />
-              </div>
-              <span>商超便利</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/3.jpg" />
-              </div>
-              <span>美食</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/4.jpg" />
-              </div>
-              <span>简餐</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/5.jpg" />
-              </div>
-              <span>新店特惠</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/6.jpg" />
-              </div>
-              <span>准时达</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/7.jpg" />
-              </div>
-              <span>预订早餐</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/8.jpg" />
-              </div>
-              <span>土豪推荐</span>
-            </a>
-          </div>
-          <div class="swiper-slide">
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/9.jpg" />
-              </div>
-              <span>甜品饮品</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/10.jpg" />
-              </div>
-              <span>商超便利</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/11.jpg" />
-              </div>
-              <span>美食</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/12.jpg" />
-              </div>
-              <span>简餐</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/13.jpg" />
-              </div>
-              <span>新店特惠</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/14.jpg" />
-              </div>
-              <span>准时达</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/1.jpg" />
-              </div>
-              <span>预订早餐</span>
-            </a>
-            <a href="javascript:" class="link_to_food">
-              <div class="food_container">
-                <img src="./images/nav/2.jpg" />
-              </div>
-              <span>土豪推荐</span>
+              <span>{{category.title}}</span>
             </a>
           </div>
         </div>
@@ -143,22 +56,77 @@ export default {
   components: {
     ShowList
   },
-  mounted() {
-    // 获取地址数据对象
-    this.$store.dispatch("getAddress");
+  async mounted() {
     // 获取商铺列表数据
-    this.$store.dispatch('getShops');
-    new Swiper(".swiper-container", {
+    this.$store.dispatch("getShops");
+    // 获取商品分类列表数据
+    await this.$store.dispatch("getCategories");
+    // 解决Swiper正常使用 => 方法三:
+    this.$nextTick(() => {
+        new Swiper(".swiper-container", {
+          loop: true,
+          // 如果需要分页器
+          pagination: {
+            el: ".swiper-pagination"
+          }
+        });
+      });
+    /* // 获取商品分类列表数据
+    this.$store.dispatch("getCategories",()=>{
+      // 解决Swiper正常使用 => 方法二：
+      this.$nextTick(() => {
+        new Swiper(".swiper-container", {
+          loop: true,
+          // 如果需要分页器
+          pagination: {
+            el: ".swiper-pagination"
+          }
+        });
+      });
+    }); */
+    /* new Swiper(".swiper-container", {
       loop: true,
       // 如果需要分页器
       pagination: {
         el: ".swiper-pagination"
       }
-    });
+    }); */
   },
   computed: {
-    ...mapState(["address"])
-  }
+    ...mapState(["address", "categories"]),
+    categoryArr() {
+      // 得到categories数组
+      const { categories } = this.$store.state;
+      // 定义外层数组
+      const bigArr = [];
+      // 定义内层数组
+      let smallArr = [];
+      categories.forEach(category => {
+        if (smallArr.length === 0) {
+          bigArr.push(smallArr);
+        }
+        smallArr.push(category);
+        if (smallArr.length === 8) {
+          smallArr = [];
+        }
+      });
+      return bigArr;
+    }
+  },
+  /* watch: {
+    // 解决Swiper正常使用 => 方法一：
+    categories() {
+      this.$nextTick(() => {
+        new Swiper(".swiper-container", {
+          loop: true,
+          // 如果需要分页器
+          pagination: {
+            el: ".swiper-pagination"
+          }
+        });
+      });
+    }
+  } */
 };
 </script>
 

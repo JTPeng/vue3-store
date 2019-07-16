@@ -9,7 +9,6 @@
 // 引入组件
 import FooterGuide from "./components/FooterGuide";
 
-
 export default {
   name: "App",
   // 注册组件
@@ -17,6 +16,9 @@ export default {
     FooterGuide
   },
   mounted() {
+    // 获取地址数据对象
+    this.$store.dispatch("getAddress");
+
   }
 };
 </script>

@@ -4,10 +4,12 @@ import Vue from 'vue';
 import App from './App';
 import router from './router';
 
-import Header from './components/Header'
+import Header from './components/Header';
+import Star from './components/Star/';
 // 引入store
 import store from "./store";
 Vue.component('Header',Header);
+Vue.component('Star',Star);
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
