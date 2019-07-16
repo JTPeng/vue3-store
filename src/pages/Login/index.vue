@@ -4,16 +4,23 @@
       <div class="login_header">
         <h2 class="login_logo">硅谷外卖</h2>
         <div class="login_header_title">
-          <a href="javascript:;" class="on">短信登录</a>
-          <a href="javascript:;">密码登录</a>
+          <a href="javascript:;" :class="{on:loginWay}" @click="loginWay = true">短信登录</a>
+          <a href="javascript:;" :class="{on:!loginWay}" @click="loginWay = false">密码登录</a>
         </div>
       </div>
       <div class="login_content">
         <form>
-          <div class="on">
+          <div :class="{on:loginWay}">
             <section class="login_message">
-              <input type="tel" maxlength="11" placeholder="手机号" />
-              <button disabled="disabled" class="get_verification">获取验证码</button>
+              <input type="tel" maxlength="11" placeholder="手机号" v-model="phone" />
+              <!-- (!isRightPhone)为true按钮的disabled启用 (!isRightPhone)为false按钮的disabled不启用 -->
+              <!-- computeTime > 0 为true disabled启用 反之不启用 -->
+              <button
+                :disabled="!isRightPhone||computeTime > 0"
+                class="get_verification"
+                :class="{right:isRightPhone}"
+                @click.prevent="sendCode"
+              >{{computeTime>0?`已发送(${computeTime}s)`:'获取验证码'}}</button>
             </section>
             <section class="login_verification">
               <input type="tel" maxlength="8" placeholder="验证码" />
@@ -23,7 +30,7 @@
               <a href="javascript:;">《用户服务协议》</a>
             </section>
           </div>
-          <div>
+          <div :class="{on:!loginWay}">
             <section>
               <section class="login_message">
                 <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" />
@@ -53,7 +60,31 @@
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      loginWay: true, // true => 手机号登录 / false => 账号密码登录
+      phone: "", // 手机号
+      computeTime: 0 // 倒计时
+    };
+  },
+  methods: {
+    sendCode() {
+      this.computeTime = 5;
+      this.timeId = setInterval(() => {
+        this.computeTime--;
+        if (this.computeTime <= 0) {
+          clearInterval(this.timeId);
+        }
+      }, 1000);
+    }
+  },
+  computed: {
+    isRightPhone() {
+      return /^1\d{10}$/.test(this.phone);
+    }
+  }
+};
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus" scoped>
@@ -117,6 +148,8 @@ export default {};
               color #ccc
               font-size 14px
               background transparent
+              &.right
+                color black
           .login_verification
             position relative
             margin-top 16px

@@ -15,10 +15,9 @@ export default {
   components: {
     FooterGuide
   },
-  mounted() {
+  async mounted() {
     // 获取地址数据对象
     this.$store.dispatch("getAddress");
-
   }
 };
 </script>
