@@ -8,6 +8,7 @@ import Header from './components/Header';
 import Star from './components/Star/';
 // 引入store
 import store from "./store";
+import './validate.js';
 Vue.component('Header',Header);
 Vue.component('Star',Star);
 Vue.config.productionTip = false

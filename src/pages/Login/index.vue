@@ -12,18 +12,34 @@
         <form>
           <div :class="{on:loginWay}">
             <section class="login_message">
-              <input type="tel" maxlength="11" placeholder="手机号" v-model="phone" />
+              <input
+                type="tel"
+                maxlength="11"
+                placeholder="手机号"
+                v-model="phone"
+                name="phone"
+                v-validate="'required|phone'"
+              />
+              <span style="color:red" v-show="errors.has('phone')">{{ errors.first('phone') }}</span>
               <!-- (!isRightPhone)为true按钮的disabled启用 (!isRightPhone)为false按钮的disabled不启用 -->
               <!-- computeTime > 0 为true disabled启用 反之不启用 -->
               <button
                 :disabled="!isRightPhone||computeTime > 0"
                 class="get_verification"
-                :class="{right:isRightPhone}"
+                :class="{right:isRightPhone||computeTime > 0}"
                 @click.prevent="sendCode"
               >{{computeTime>0?`已发送(${computeTime}s)`:'获取验证码'}}</button>
             </section>
             <section class="login_verification">
-              <input type="tel" maxlength="8" placeholder="验证码" />
+              <input
+                type="tel"
+                maxlength="8"
+                placeholder="验证码"
+                v-model="code"
+                name="code"
+                v-validate="'required'"
+              />
+              <span style="color:red" v-show="errors.has('code')">{{ errors.first('code') }}</span>
             </section>
             <section class="login_hint">
               温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
@@ -33,22 +49,60 @@
           <div :class="{on:!loginWay}">
             <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" />
+                <input
+                  type="tel"
+                  maxlength="11"
+                  placeholder="手机/邮箱/用户名"
+                  v-model="username"
+                  name="username"
+                  v-validate="'required'"
+                />
+                <span
+                  style="color:red"
+                  v-show="errors.has('username')"
+                >{{ errors.first('username') }}</span>
               </section>
               <section class="login_verification">
-                <input type="tel" maxlength="8" placeholder="密码" />
-                <div class="switch_button off">
-                  <div class="switch_circle"></div>
-                  <span class="switch_text">...</span>
+                <input
+                  :type="isShowPwd?'text':'password'"
+                  maxlength="8"
+                  placeholder="密码"
+                  v-model="pwd"
+                  name="pwd"
+                  v-validate="'required'"
+                />
+                <span style="color:red" v-show="errors.has('pwd')">{{ errors.first('pwd') }}</span>
+                <div
+                  class="switch_button"
+                  :class="isShowPwd?'on':'off'"
+                  @click="isShowPwd = !isShowPwd"
+                >
+                  <div class="switch_circle" :class="{right:isShowPwd}"></div>
+                  <span class="switch_text">{{isShowPwd?'abc':'...'}}</span>
                 </div>
               </section>
               <section class="login_message">
-                <input type="text" maxlength="11" placeholder="验证码" />
-                <img class="get_verification" src="./images/captcha.svg" alt="captcha" />
+                <input
+                  type="text"
+                  maxlength="11"
+                  placeholder="验证码"
+                  v-model="captcha"
+                  name="captcha"
+                  v-validate="'required'"
+                />
+                <span style="color:red" v-show="errors.has('captcha')">{{ errors.first('captcha') }}</span>
+                <!-- src="./images/captcha.svg" -->
+                <img
+                  class="get_verification"
+                  ref="captcha"
+                  src="http://localhost:5000/captcha"
+                  alt="captcha"
+                  @click="changeCaptcha"
+                />
               </section>
             </section>
           </div>
-          <button class="login_submit">登录</button>
+          <button class="login_submit" @click.prevent="login">登录</button>
         </form>
         <a href="javascript:;" class="about_us">关于我们</a>
       </div>
@@ -60,16 +114,23 @@
 </template>
 
 <script>
+import { reqSendCode, reqMsmLogin, reqLogin } from "../../api";
 export default {
   data() {
     return {
       loginWay: true, // true => 手机号登录 / false => 账号密码登录
       phone: "", // 手机号
-      computeTime: 0 // 倒计时
+      code: "", // 手机验证码
+      username: "", // 用户名
+      pwd: "", // 密码
+      captcha: "", // 图形验证码
+      computeTime: 0, // 倒计时
+      isShowPwd: false // 是否显示密码
     };
   },
   methods: {
-    sendCode() {
+    // 发送手机验证码
+    async sendCode() {
       this.computeTime = 5;
       this.timeId = setInterval(() => {
         this.computeTime--;
@@ -77,6 +138,39 @@ export default {
           clearInterval(this.timeId);
         }
       }, 1000);
+      const result = await reqSendCode(this.phone);
+      if (result.code === 0) {
+        alert("发送成功");
+      }
+    },
+    async login() {
+      const { loginWay, phone, code, username, pwd, captcha } = this;
+      let result;
+      // 判断是那种登录方式
+      const validateNames = loginWay ? ["phone", "code"] : ["username", "pwd", "captcha"];
+      // 返回的是布尔值
+      const success = await this.$validator.validateAll(validateNames);
+      if (success) {
+        // 手机登录
+        if (loginWay) {
+          result = await reqMsmLogin(phone, code);
+          result.code === 0 ? this.$router.replace('/profile') : window.confirm(result.msg);
+        } else {
+          // 用户名密码登录
+          result = await reqLogin({ username, pwd, captcha });
+          if (result.code === 0) {
+            this.$router.replace('/profile');
+          } else {
+            window.confirm(result.msg);
+          }
+        }
+      }
+    },
+    // 刷新图形验证码
+    changeCaptcha() {
+      this.$refs.captcha.src =
+        "http://localhost:5000/captcha?time=" + Date.now();
+      // event.target.src = 'http://localhost:5000/captcha?time='+Date.now();
     }
   },
   computed: {
@@ -189,6 +283,8 @@ export default {
                 background #fff
                 box-shadow 0 2px 4px 0 rgba(0, 0, 0, 0.1)
                 transition transform 0.3s
+                &.right
+                  transform translateX(27px)
           .login_hint
             margin-top 12px
             color #999
