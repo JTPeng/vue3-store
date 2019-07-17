@@ -3,7 +3,9 @@
 import {
 	RECEIVE_ADDERSS,
 	RECEIVE_SHOPS,
-	RECEIVE_CATEGORIES
+	RECEIVE_CATEGORIES,
+	RECEIVE_USER,
+	RESET_USER,
 } from './mutation-types.js';
 export default {
 	// 地址
@@ -16,6 +18,14 @@ export default {
 	},
 	// 商铺列表
 	[RECEIVE_SHOPS](state, shops) {
-		state.shops = shops
+		state.shops = shops;
+	},
+	// 用户信息
+	[RECEIVE_USER](state, user){
+		state.user = user
+	},
+	// 清除保存的用户信息
+	[RESET_USER](state){
+		state.user = {}
 	}
 }

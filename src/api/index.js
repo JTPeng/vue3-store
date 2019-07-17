@@ -24,7 +24,7 @@ export const reqSendCode = (phone) => ajax(BASE + `/sendcode`, { phone })
 export const reqMsmLogin = (phone, code) => ajax(BASE + `/login_sms`, { phone, code },'POST')
 
 // 8.根据会话获取用户信息
-export const reqUserMessages = () => ajax(BASE + `/userinfo`);
+export const reqUser = () => ajax(BASE + `/userinfo`);
 
 // 19.用户登出
 export const reqLogout = () => ajax(BASE + `/logout`)

@@ -6,7 +6,9 @@
         <i class="iconfont icon-sousuo"></i>
       </span>
       <span class="header_login" slot="right">
-        <span class="header_login_text">登录|注册</span>
+        <span
+          class="header_login_text"
+        >{{user._id?(user.name?(user.name):(user.phone?(user.phone):('登录|注册'))):('登录|注册')}}</span>
       </span>
     </Header>
     <!--首页导航-->
@@ -63,14 +65,14 @@ export default {
     await this.$store.dispatch("getCategories");
     // 解决Swiper正常使用 => 方法三:
     this.$nextTick(() => {
-        new Swiper(".swiper-container", {
-          loop: true,
-          // 如果需要分页器
-          pagination: {
-            el: ".swiper-pagination"
-          }
-        });
+      new Swiper(".swiper-container", {
+        loop: true,
+        // 如果需要分页器
+        pagination: {
+          el: ".swiper-pagination"
+        }
       });
+    });
     /* // 获取商品分类列表数据
     this.$store.dispatch("getCategories",()=>{
       // 解决Swiper正常使用 => 方法二：
@@ -93,7 +95,7 @@ export default {
     }); */
   },
   computed: {
-    ...mapState(["address", "categories"]),
+    ...mapState(["address", "categories", "user"]),
     categoryArr() {
       // 得到categories数组
       const { categories } = this.$store.state;
@@ -112,7 +114,7 @@ export default {
       });
       return bigArr;
     }
-  },
+  }
   /* watch: {
     // 解决Swiper正常使用 => 方法一：
     categories() {

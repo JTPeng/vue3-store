@@ -8,5 +8,7 @@ export default {
 	// 商品分类
 	categories:[],
 	// 商铺列表
-	shops:[]
+	shops:[],
+	// 用户信息
+	user:{}
 }

@@ -9,6 +9,9 @@ import Star from './components/Star/';
 // 引入store
 import store from "./store";
 import './validate.js';
+import { Button } from 'mint-ui';
+
+Vue.component(Button.name, Button);
 Vue.component('Header',Header);
 Vue.component('Star',Star);
 Vue.config.productionTip = false

@@ -1,7 +1,7 @@
 // 包含多个间接修改状态数据的actions对象方法
 
-import { RECEIVE_ADDERSS, RECEIVE_SHOPS, RECEIVE_CATEGORIES } from './mutation-types.js';
-import { reqAddress, reqCategories, reqShops } from '../api';
+import { RECEIVE_ADDERSS, RECEIVE_SHOPS, RECEIVE_CATEGORIES, RESET_USER } from './mutation-types.js';
+import { reqAddress, reqCategories, reqShops, reqLogout } from '../api';
 export default {
     // 获取地址
     async getAddress({ commit, state }) {
@@ -13,12 +13,12 @@ export default {
         }
     },
     // 获取商品分类
-    async getCategories({ commit },callback) {
+    async getCategories({ commit }, callback) {
         const result = await reqCategories();
         if (result.code === 0) {
             const categories = result.data;
-						commit(RECEIVE_CATEGORIES, categories);
-						typeof callback === 'function' && callback();
+            commit(RECEIVE_CATEGORIES, categories);
+            typeof callback === 'function' && callback();
         }
     },
     // 获取商铺列表
@@ -30,4 +30,11 @@ export default {
             commit(RECEIVE_SHOPS, Shops);
         }
     },
+    // 更新用户信息
+    async loginOut({ commit }){
+        const result = await reqLogout();
+        if(result.code === 0){
+            commit(RESET_USER);
+        }
+    }
 }

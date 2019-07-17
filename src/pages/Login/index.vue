@@ -53,14 +53,14 @@
                   type="tel"
                   maxlength="11"
                   placeholder="手机/邮箱/用户名"
-                  v-model="username"
-                  name="username"
+                  v-model="name"
+                  name="name"
                   v-validate="'required'"
                 />
                 <span
                   style="color:red"
-                  v-show="errors.has('username')"
-                >{{ errors.first('username') }}</span>
+                  v-show="errors.has('name')"
+                >{{ errors.first('name') }}</span>
               </section>
               <section class="login_verification">
                 <input
@@ -115,13 +115,14 @@
 
 <script>
 import { reqSendCode, reqMsmLogin, reqLogin } from "../../api";
+import { RECEIVE_USER } from "../../store/mutation-types.js";
 export default {
   data() {
     return {
       loginWay: true, // true => 手机号登录 / false => 账号密码登录
       phone: "", // 手机号
       code: "", // 手机验证码
-      username: "", // 用户名
+      name: "", // 用户名
       pwd: "", // 密码
       captcha: "", // 图形验证码
       computeTime: 0, // 倒计时
@@ -144,25 +145,29 @@ export default {
       }
     },
     async login() {
-      const { loginWay, phone, code, username, pwd, captcha } = this;
+      const { loginWay, phone, code, name, pwd, captcha } = this;
       let result;
       // 判断是那种登录方式
-      const validateNames = loginWay ? ["phone", "code"] : ["username", "pwd", "captcha"];
+      const validateNames = loginWay
+        ? ["phone", "code"]
+        : ["name", "pwd", "captcha"];
       // 返回的是布尔值
       const success = await this.$validator.validateAll(validateNames);
       if (success) {
         // 手机登录
         if (loginWay) {
           result = await reqMsmLogin(phone, code);
-          result.code === 0 ? this.$router.replace('/profile') : window.confirm(result.msg);
         } else {
           // 用户名密码登录
-          result = await reqLogin({ username, pwd, captcha });
-          if (result.code === 0) {
-            this.$router.replace('/profile');
-          } else {
-            window.confirm(result.msg);
-          }
+          result = await reqLogin({ name, pwd, captcha });
+        }
+        if (result.code === 0) {
+          const user = result.data;
+          this.$store.commit(RECEIVE_USER, user);
+          // 登录成功跳转
+          this.$router.replace("/profile");
+        } else {
+          window.confirm(result.msg);
         }
       }
     },

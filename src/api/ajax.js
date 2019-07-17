@@ -1,5 +1,6 @@
 import axios from 'axios';
 export default function ajax(url, data={}, method='GET') {
+  // eslint-disable-next-line
   return new Promise((resolve, reject) => {
     let promise
     // 执行异步ajax请求
