@@ -41,7 +41,7 @@
           <span class="activity-content">{{ info.supports[0].content }}</span>
         </div>
       </div>
-      <div class="discounts-right">{{ info.supports.length }}个优惠</div>
+      <div class="discounts-right" v-if="info.name" >{{ info.supports.length }}个优惠</div>
     </div>
     <transition name="fade">
       <div class="shop-brief-modal" v-show="isShowBulletin">

@@ -1,75 +1,49 @@
 <template>
   <div class="goods">
+    <!-- 左侧 -->
     <div class="menu-wrapper">
       <ul>
-        <li class="menu-item current">
-          <img
-            class="icon"
-            src="https://fuss10.elemecdn.com/0/6a/05b267f338acfeb8bd682d16e836dpng.png"
-          />
-          <span class="text bottom-border-1px">折扣</span>
-        </li>
-        <li class="menu-item">
-          <span class="text bottom-border-1px">
-            <img
-              class="icon"
-              src="https://fuss10.elemecdn.com/b/91/8cf4f67e0e8223931cd595dc932fepng.png"
-            />
-            优惠
-          </span>
+        <li
+          class="menu-item"
+          :class="{ current: currentIndex === index }"
+          v-for="(good, index) in goods"
+          :key="index"
+        >
+          <img class="icon" :src="good.icon" v-if="good.icon" />
+          <span class="text bottom-border-1px">{{ good.name }}</span>
         </li>
       </ul>
     </div>
+    <!-- 右侧 -->
     <div class="foods-wrapper">
-      <ul>
-        <li class="food-list-hook">
-          <h1 class="title">折扣</h1>
+      <ul ref="rightUl">
+        <li class="food-list-hook" v-for="(good, index) in goods" :key="index">
+          <h1 class="title">{{ good.name }}</h1>
           <ul>
-            <li class="food-item bottom-border-1px">
+            <li
+              class="food-item bottom-border-1px"
+              v-for="(food, index) in good.foods"
+              :key="index"
+            >
               <div class="icon">
-                <img
-                  width="57"
-                  height="57"
-                  src="http://fuss10.elemecdn.com/8/a6/453f65f16b1391942af11511b7a90jpeg.jpeg?imageView2/1/w/114/h/114"
-                />
+                <img width="57" height="57" :src="food.icon" />
               </div>
               <div class="content">
-                <h2 class="name">南瓜粥</h2>
-                <p class="desc">甜粥</p>
+                <h2 class="name">{{ food.name }}</h2>
+                <p class="desc">{{ food.description }}</p>
                 <div class="extra">
-                  <span class="count">月售91份</span>
-                  <span>好评率100%</span>
+                  <span class="count">月售{{ food.sellCount }}份</span>
+                  <span>好评率{{ food.rating }}%</span>
                 </div>
                 <div class="price">
-                  <span class="now">￥9</span>
-                </div>
-                <div class="cartcontrol-wrapper">CartControl组件</div>
-              </div>
-            </li>
-            <li class="food-item bottom-border-1px">
-              <div class="icon">
-                <img
-                  width="57"
-                  height="57"
-                  src="http://fuss10.elemecdn.com/d/22/260bd78ee6ac6051136c5447fe307jpeg.jpeg?imageView2/1/w/114/h/114"
-                />
-              </div>
-              <div class="content">
-                <h2 class="name">红豆薏米美肤粥</h2>
-                <p class="desc">甜粥</p>
-                <div class="extra">
-                  <span class="count">月售86份</span>
-                  <span>好评率100%</span>
-                </div>
-                <div class="price">
-                  <span class="now">￥12</span>
+                  <span class="now">￥{{ food.price }}</span>
                 </div>
                 <div class="cartcontrol-wrapper">CartControl组件</div>
               </div>
             </li>
           </ul>
         </li>
-        <li class="food-list food-list-hook">
+        <!-- <li class="food-list food-list-hook">
           <h1 class="title">香浓甜粥</h1>
           <ul>
             <li class="food-item bottom-border-1px">
@@ -95,14 +69,73 @@
               </div>
             </li>
           </ul>
-        </li>
+        </li> -->
       </ul>
     </div>
   </div>
 </template>
 
 <script>
-export default {};
+import BScroll from "better-scroll";
+import { mapState } from "vuex";
+export default {
+  data() {
+    return {
+      scrollY: 0, // 右侧列表滚动的距离
+      tops: [] // 装载每个food高度的数组
+    };
+  },
+  async mounted() {
+    // 触发actions发送请求 +> 将获得数据更新到vuex数据状态管理的仓库中
+    await this.$store.dispatch("getGoods");
+    // 初始化滚动条
+		this._initScroll();
+		// 初始化tops数组
+		this._initTops();
+  },
+  computed: {
+    ...mapState({
+      goods: state => state.shop.goods
+    }),
+    currentIndex() {
+      const { scrollY, tops } = this;
+      // 返回在区间的索引值
+      const index = tops.findIndex(
+        (top, index) => scrollY >= top && scrollY < tops[index + 1]
+      );
+      return index;
+    }
+  },
+  methods: {
+    _initScroll() {
+      new BScroll(".menu-wrapper");
+			// 右侧列表
+      this.rightScroll = new BScroll(".foods-wrapper", {
+        click: true,
+        probeType: 1
+      });
+			
+			this.rightScroll.on('scroll',({y})=>{
+				this.scrollY = Math.abs(y);
+			});
+			this.rightScroll.on('scrollEnd',({y}) => {
+				this.scrollY = Math.abs(y);
+			})
+		},
+		_initTops(){
+			const tops = [];
+			let top = 0;
+			tops.push(top);
+			// 获取到右侧列表中的li
+			const lists = this.$refs.rightUl.children;
+			Array.prototype.slice.call(lists).forEach(list => {
+				top += list.clientHeight;
+				tops.push(top);
+			});
+			this.tops = tops;
+		}
+  }
+};
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus" scoped>
