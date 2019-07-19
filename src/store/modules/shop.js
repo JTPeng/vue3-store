@@ -10,13 +10,13 @@ import {
 } from '../../api';
 const state = {
   // mock
-  // goods信息
+  // goods食品信息
   goods: [],
 
-  // ratings信息
+  // ratings评价信息
   ratings: [],
 
-  // info信息
+  // info商家信息
   info: {}
 };
 

@@ -128,7 +128,7 @@ export default {
     };
   },
   mounted() {
-    this.$store.dispatch("getInfo");
+    // this.$store.dispatch("getInfo");
   },
   computed: {
     ...mapState({

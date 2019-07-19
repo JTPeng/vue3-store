@@ -19,6 +19,9 @@
 <script>
 import ShopHeader from "../../components/ShopHeader";
 export default {
+	mounted() {
+		this.$store.dispatch("getInfo");
+	},
   components: {
     ShopHeader
   }

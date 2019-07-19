@@ -38,7 +38,9 @@
                 <div class="price">
                   <span class="now">￥{{ food.price }}</span>
                 </div>
-                <div class="cartcontrol-wrapper">CartControl组件</div>
+                <div class="cartcontrol-wrapper">
+									<CartControl/>
+								</div>
               </div>
             </li>
           </ul>
@@ -72,19 +74,26 @@
         </li> -->
       </ul>
     </div>
+		<ShopCart/>
   </div>
 </template>
 
 <script>
 import BScroll from "better-scroll";
 import { mapState } from "vuex";
+import ShopCart from '../../../components/ShopCart';
+import CartControl from '../../../components/CartControl';
 export default {
   data() {
     return {
       scrollY: 0, // 右侧列表滚动的距离
       tops: [] // 装载每个food高度的数组
     };
-  },
+	},
+	components:{
+		CartControl,
+		ShopCart
+	},
   async mounted() {
     // 触发actions发送请求 +> 将获得数据更新到vuex数据状态管理的仓库中
     await this.$store.dispatch("getGoods");
