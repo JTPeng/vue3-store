@@ -4,13 +4,23 @@
       <div class="login_header">
         <h2 class="login_logo">硅谷外卖</h2>
         <div class="login_header_title">
-          <a href="javascript:;" :class="{on:loginWay}" @click="loginWay = true">短信登录</a>
-          <a href="javascript:;" :class="{on:!loginWay}" @click="loginWay = false">密码登录</a>
+          <a
+            href="javascript:;"
+            :class="{ on: loginWay }"
+            @click="loginWay = true"
+            >短信登录</a
+          >
+          <a
+            href="javascript:;"
+            :class="{ on: !loginWay }"
+            @click="loginWay = false"
+            >密码登录</a
+          >
         </div>
       </div>
       <div class="login_content">
         <form>
-          <div :class="{on:loginWay}">
+          <div :class="{ on: loginWay }">
             <section class="login_message">
               <input
                 type="tel"
@@ -20,15 +30,19 @@
                 name="phone"
                 v-validate="'required|phone'"
               />
-              <span style="color:red" v-show="errors.has('phone')">{{ errors.first('phone') }}</span>
+              <span style="color:red" v-show="errors.has('phone')">{{
+                errors.first("phone")
+              }}</span>
               <!-- (!isRightPhone)为true按钮的disabled启用 (!isRightPhone)为false按钮的disabled不启用 -->
               <!-- computeTime > 0 为true disabled启用 反之不启用 -->
               <button
-                :disabled="!isRightPhone||computeTime > 0"
+                :disabled="!isRightPhone || computeTime > 0"
                 class="get_verification"
-                :class="{right:isRightPhone||computeTime > 0}"
+                :class="{ right: isRightPhone || computeTime > 0 }"
                 @click.prevent="sendCode"
-              >{{computeTime>0?`已发送(${computeTime}s)`:'获取验证码'}}</button>
+              >
+                {{ computeTime > 0 ? `已发送(${computeTime}s)` : "获取验证码" }}
+              </button>
             </section>
             <section class="login_verification">
               <input
@@ -39,14 +53,16 @@
                 name="code"
                 v-validate="'required'"
               />
-              <span style="color:red" v-show="errors.has('code')">{{ errors.first('code') }}</span>
+              <span style="color:red" v-show="errors.has('code')">{{
+                errors.first("code")
+              }}</span>
             </section>
             <section class="login_hint">
               温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
               <a href="javascript:;">《用户服务协议》</a>
             </section>
           </div>
-          <div :class="{on:!loginWay}">
+          <div :class="{ on: !loginWay }">
             <section>
               <section class="login_message">
                 <input
@@ -57,28 +73,34 @@
                   name="name"
                   v-validate="'required'"
                 />
-                <span
-                  style="color:red"
-                  v-show="errors.has('name')"
-                >{{ errors.first('name') }}</span>
+                <span style="color:red" v-show="errors.has('name')">{{
+                  errors.first("name")
+                }}</span>
               </section>
               <section class="login_verification">
                 <input
-                  :type="isShowPwd?'text':'password'"
+                  :type="isShowPwd ? 'text' : 'password'"
                   maxlength="8"
                   placeholder="密码"
                   v-model="pwd"
                   name="pwd"
                   v-validate="'required'"
                 />
-                <span style="color:red" v-show="errors.has('pwd')">{{ errors.first('pwd') }}</span>
+                <span style="color:red" v-show="errors.has('pwd')">{{
+                  errors.first("pwd")
+                }}</span>
                 <div
                   class="switch_button"
-                  :class="isShowPwd?'on':'off'"
+                  :class="isShowPwd ? 'on' : 'off'"
                   @click="isShowPwd = !isShowPwd"
                 >
-                  <div class="switch_circle" :class="{right:isShowPwd}"></div>
-                  <span class="switch_text">{{isShowPwd?'abc':'...'}}</span>
+                  <div
+                    class="switch_circle"
+                    :class="{ right: isShowPwd }"
+                  ></div>
+                  <span class="switch_text">{{
+                    isShowPwd ? "abc" : "..."
+                  }}</span>
                 </div>
               </section>
               <section class="login_message">
@@ -90,7 +112,9 @@
                   name="captcha"
                   v-validate="'required'"
                 />
-                <span style="color:red" v-show="errors.has('captcha')">{{ errors.first('captcha') }}</span>
+                <span style="color:red" v-show="errors.has('captcha')">{{
+                  errors.first("captcha")
+                }}</span>
                 <!-- src="./images/captcha.svg" -->
                 <img
                   class="get_verification"
@@ -167,6 +191,9 @@ export default {
           // 登录成功跳转
           this.$router.replace("/profile");
         } else {
+          if (!loginWay) {
+            this.changeCaptcha();
+          }
           window.confirm(result.msg);
         }
       }

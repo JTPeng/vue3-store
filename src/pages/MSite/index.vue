@@ -6,16 +6,26 @@
         <i class="iconfont icon-sousuo"></i>
       </span>
       <span class="header_login" slot="right">
-        <span
-          class="header_login_text"
-        >{{user._id?(user.name?(user.name):(user.phone?(user.phone):('登录|注册'))):('登录|注册')}}</span>
+        <span class="header_login_text">{{
+          user._id
+            ? user.name
+              ? user.name
+              : user.phone
+              ? user.phone
+              : "登录|注册"
+            : "登录|注册"
+        }}</span>
       </span>
     </Header>
     <!--首页导航-->
     <nav class="msite_nav">
       <div class="swiper-container">
         <div class="swiper-wrapper">
-          <div class="swiper-slide" v-for="(caterories, index) in categoryArr" :key="index">
+          <div
+            class="swiper-slide"
+            v-for="(caterories, index) in categoryArr"
+            :key="index"
+          >
             <a
               href="javascript:"
               class="link_to_food"
@@ -23,9 +33,11 @@
               :key="index"
             >
               <div class="food_container">
-                <img :src="`https://fuss10.elemecdn.com${category.image_url}`" />
+                <img
+                  :src="`https://fuss10.elemecdn.com${category.image_url}`"
+                />
               </div>
-              <span>{{category.title}}</span>
+              <span>{{ category.title }}</span>
             </a>
           </div>
         </div>
