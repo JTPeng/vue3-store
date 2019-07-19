@@ -45,7 +45,13 @@ import { mapState } from "vuex";
 export default {
   name: "shopList",
   computed: {
-    ...mapState(["shops"])
+		/* 不是使用module模块管理来获取state中的状态数据
+		...mapState(["shops"]) 
+		*/
+		/* 使用module模块管理来获取state中的状态数据 */
+		...mapState({
+			shops:state => state.msite.shops
+		})
   }
 };
 </script>

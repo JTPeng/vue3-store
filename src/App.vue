@@ -26,7 +26,7 @@ export default {
       const user = result.data;
       // 更新state中用户信息数据状态
       this.$store.commit(RECEIVE_USER, user);
-    }
+		}
   }
 };
 </script>

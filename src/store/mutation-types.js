@@ -10,3 +10,12 @@ export const RECEIVE_SHOPS = 'receive_shops';
 export const RECEIVE_USER = 'receive_user';
 // 5.用户登出
 export const RESET_USER = 'reset_user';
+
+// 6.获取goods信息
+export const RECEIVE_GOODS = 'receive_goods';
+
+// 7.获取ratings信息
+export const RECEIVE_RATINGS = 'receive_ratings';
+
+// 8.获取info信息
+export const RECEIVE_INFO = 'receive_info';

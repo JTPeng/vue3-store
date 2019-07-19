@@ -9,6 +9,7 @@ import Star from './components/Star/';
 // 引入store
 import store from "./store";
 import './validate.js';
+import './mock/mock-server.js'
 import { Button } from 'mint-ui';
 
 Vue.component(Button.name, Button);

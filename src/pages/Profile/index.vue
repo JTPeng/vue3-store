@@ -120,7 +120,12 @@ export default {
     }
   },
   computed: {
-    ...mapState(["user"])
+		/* 不是使用module模块管理来获取state中的状态数据
+		...mapState(["user"]) 
+		*/
+		...mapState({
+			user:state => state.user.user
+		})
   }
 };
 </script>

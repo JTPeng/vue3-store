@@ -107,10 +107,18 @@ export default {
     }); */
   },
   computed: {
-    ...mapState(["address", "categories", "user"]),
+    /* 不是使用module模块管理来获取state中的状态数据
+		...mapState(["address", "categories", "user"]), 
+		*/
+    /* 使用module模块管理来获取state中的状态数据 */
+    ...mapState({
+      address: state => state.msite.address,
+      categories: state => state.msite.categories,
+      user: state => state.user.user
+    }),
     categoryArr() {
       // 得到categories数组
-      const { categories } = this.$store.state;
+      const { categories } = this;
       // 定义外层数组
       const bigArr = [];
       // 定义内层数组
