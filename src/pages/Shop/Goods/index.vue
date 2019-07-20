@@ -1,81 +1,62 @@
 <template>
-  <div class="goods">
-    <!-- 左侧 -->
-    <div class="menu-wrapper">
-      <ul>
-        <li
-          class="menu-item"
-          :class="{ current: currentIndex === index }"
-          v-for="(good, index) in goods"
-          :key="index"
-          @click="leftScroll(index)"
-        >
-          <img class="icon" :src="good.icon" v-if="good.icon" />
-          <span class="text bottom-border-1px">{{ good.name }}</span>
-        </li>
-      </ul>
+  <div>
+    <div class="goods">
+      <!-- 左侧 -->
+      <div class="menu-wrapper">
+        <ul>
+          <li
+            class="menu-item"
+            :class="{ current: currentIndex === index }"
+            v-for="(good, index) in goods"
+            :key="index"
+            @click="leftScroll(index)"
+          >
+            <img class="icon" :src="good.icon" v-if="good.icon" />
+            <span class="text bottom-border-1px">{{ good.name }}</span>
+          </li>
+        </ul>
+      </div>
+      <!-- 右侧 -->
+      <div class="foods-wrapper">
+        <ul ref="rightUl">
+          <li
+            class="food-list-hook"
+            v-for="(good, index) in goods"
+            :key="index"
+          >
+            <h1 class="title">{{ good.name }}</h1>
+            <ul>
+              <li
+                class="food-item bottom-border-1px"
+                v-for="(food, index) in good.foods"
+                :key="index"
+                @click="toggleFood(food)"
+              >
+                <div class="icon">
+                  <img width="57" height="57" :src="food.icon" />
+                </div>
+                <div class="content">
+                  <h2 class="name">{{ food.name }}</h2>
+                  <p class="desc">{{ food.description }}</p>
+                  <div class="extra">
+                    <span class="count">月售{{ food.sellCount }}份</span>
+                    <span>好评率{{ food.rating }}%</span>
+                  </div>
+                  <div class="price">
+                    <span class="now">￥{{ food.price }}</span>
+                  </div>
+                  <div class="cartcontrol-wrapper">
+                    <CartControl :food="food" />
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <ShopCart />
     </div>
-    <!-- 右侧 -->
-    <div class="foods-wrapper">
-      <ul ref="rightUl">
-        <li class="food-list-hook" v-for="(good, index) in goods" :key="index">
-          <h1 class="title">{{ good.name }}</h1>
-          <ul>
-            <li
-              class="food-item bottom-border-1px"
-              v-for="(food, index) in good.foods"
-              :key="index"
-            >
-              <div class="icon">
-                <img width="57" height="57" :src="food.icon" />
-              </div>
-              <div class="content">
-                <h2 class="name">{{ food.name }}</h2>
-                <p class="desc">{{ food.description }}</p>
-                <div class="extra">
-                  <span class="count">月售{{ food.sellCount }}份</span>
-                  <span>好评率{{ food.rating }}%</span>
-                </div>
-                <div class="price">
-                  <span class="now">￥{{ food.price }}</span>
-                </div>
-                <div class="cartcontrol-wrapper">
-                  <CartControl />
-                </div>
-              </div>
-            </li>
-          </ul>
-        </li>
-        <!-- <li class="food-list food-list-hook">
-          <h1 class="title">香浓甜粥</h1>
-          <ul>
-            <li class="food-item bottom-border-1px">
-              <div class="icon">
-                <img
-                  width="57"
-                  height="57"
-                  src="http://fuss10.elemecdn.com/6/72/cb844f0bb60c502c6d5c05e0bddf5jpeg.jpeg?imageView2/1/w/114/h/114"
-                />
-              </div>
-              <div class="content">
-                <h2 class="name">红枣山药粥</h2>
-                <p class="desc">红枣山药糙米粥,素材包</p>
-                <div class="extra">
-                  <span class="count">月售17份</span>
-                  <span>好评率100%</span>
-                </div>
-                <div class="price">
-                  <span class="now">￥29</span>
-                  <span class="old">￥36</span>
-                </div>
-                <div class="cartcontrol-wrapper">CartControl组件</div>
-              </div>
-            </li>
-          </ul>
-        </li> -->
-      </ul>
-    </div>
-    <ShopCart />
+    <Food :food="food" ref="food" />
   </div>
 </template>
 
@@ -83,17 +64,18 @@
 import BScroll from "better-scroll";
 import { mapState } from "vuex";
 import ShopCart from "../../../components/ShopCart";
-import CartControl from "../../../components/CartControl";
+import Food from "./Food.vue";
 export default {
   data() {
     return {
       scrollY: 0, // 右侧列表滚动的距离
-      tops: [] // 装载每个food高度的数组
+      tops: [], // 装载每个food高度的数组
+      food: {}
     };
   },
   components: {
-    CartControl,
-    ShopCart
+    ShopCart,
+    Food
   },
   async mounted() {
     // 触发actions发送请求 +> 将获得数据更新到vuex数据状态管理的仓库中
@@ -118,7 +100,7 @@ export default {
   },
   methods: {
     _initScroll() {
-      new BScroll(".menu-wrapper", {
+      this.leftScroll = new BScroll(".menu-wrapper", {
         click: true
       });
       // 右侧列表
@@ -130,6 +112,7 @@ export default {
       this.rightScroll.on("scroll", ({ y }) => {
         this.scrollY = Math.abs(y);
       });
+      // scrollEnd滑动结束
       this.rightScroll.on("scrollEnd", ({ y }) => {
         this.scrollY = Math.abs(y);
       });
@@ -146,10 +129,17 @@ export default {
       });
       this.tops = tops;
     },
+    // 左侧带动右侧联动
     leftScroll(index) {
       const scrollY = -this.tops[index];
+      // 解决左侧缓动延迟效果
       this.scrollY = scrollY;
       this.rightScroll.scrollTo(0, scrollY, 300);
+    },
+    // 食物详细信息
+    toggleFood(food) {
+      this.food = food;
+      this.$refs.food.toggleShow();
     }
   }
 };

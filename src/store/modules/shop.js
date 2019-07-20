@@ -1,13 +1,12 @@
 import {
   RECEIVE_GOODS,
   RECEIVE_RATINGS,
-  RECEIVE_INFO
+  RECEIVE_INFO,
+  ADD_FOOD_COUNT,
+  REDUCE_FOOD_COUNT
 } from '../mutation-types.js';
-import {
-  reqGoods,
-  reqRatings,
-  reqInfo
-} from '../../api';
+import { reqGoods, reqRatings, reqInfo } from '../../api';
+import  Vue  from 'vue';
 const state = {
   // mock
   // goods食品信息
@@ -32,6 +31,18 @@ const mutations = {
   // info信息
   [RECEIVE_INFO](state, { info }) {
     state.info = info;
+  },
+  // food.count++
+  [ADD_FOOD_COUNT](state, { food }) {
+    if (!food.count) {
+      Vue.set(food, 'count', 1);
+    } else {
+      food.count++;
+    }
+  },
+  // food.count--
+  [REDUCE_FOOD_COUNT](state, { food }) {
+    food.count--;
   }
 };
 
@@ -58,6 +69,15 @@ const actions = {
     if (result.code === 0) {
       const info = result.data;
       commit(RECEIVE_INFO, { info });
+    }
+  },
+
+  // 更新food.count数据
+  updateFoodCount({ commit }, { isAdd, food }) {
+    if (isAdd) {
+      commit(ADD_FOOD_COUNT, { food });
+    } else {
+      commit(REDUCE_FOOD_COUNT, { food });
     }
   }
 };

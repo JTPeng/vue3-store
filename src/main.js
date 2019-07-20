@@ -6,16 +6,18 @@ import router from './router';
 
 import Header from './components/Header';
 import Star from './components/Star/';
+import CartControl from './components/CartControl';
 // 引入store
-import store from "./store";
+import store from './store';
 import './validate.js';
-import './mock/mock-server.js'
+import './mock/mock-server.js';
 import { Button } from 'mint-ui';
 
 Vue.component(Button.name, Button);
-Vue.component('Header',Header);
-Vue.component('Star',Star);
-Vue.config.productionTip = false
+Vue.component('Header', Header);
+Vue.component('Star', Star);
+Vue.component('CartControl', CartControl);
+Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
 new Vue({
@@ -24,4 +26,4 @@ new Vue({
   template: '<App/>',
   router,
   store
-})
+});

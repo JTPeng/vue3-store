@@ -19,3 +19,9 @@ export const RECEIVE_RATINGS = 'receive_ratings';
 
 // 8.获取info信息
 export const RECEIVE_INFO = 'receive_info';
+
+// 9.更新food.count的信息
+// 增加
+export const ADD_FOOD_COUNT = 'add_food_count';
+// 减少
+export const REDUCE_FOOD_COUNT = 'reduce_food_count';
