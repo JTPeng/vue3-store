@@ -8,6 +8,7 @@
           :class="{ current: currentIndex === index }"
           v-for="(good, index) in goods"
           :key="index"
+          @click="leftScroll(index)"
         >
           <img class="icon" :src="good.icon" v-if="good.icon" />
           <span class="text bottom-border-1px">{{ good.name }}</span>
@@ -39,8 +40,8 @@
                   <span class="now">￥{{ food.price }}</span>
                 </div>
                 <div class="cartcontrol-wrapper">
-									<CartControl/>
-								</div>
+                  <CartControl />
+                </div>
               </div>
             </li>
           </ul>
@@ -74,33 +75,33 @@
         </li> -->
       </ul>
     </div>
-		<ShopCart/>
+    <ShopCart />
   </div>
 </template>
 
 <script>
 import BScroll from "better-scroll";
 import { mapState } from "vuex";
-import ShopCart from '../../../components/ShopCart';
-import CartControl from '../../../components/CartControl';
+import ShopCart from "../../../components/ShopCart";
+import CartControl from "../../../components/CartControl";
 export default {
   data() {
     return {
       scrollY: 0, // 右侧列表滚动的距离
       tops: [] // 装载每个food高度的数组
     };
-	},
-	components:{
-		CartControl,
-		ShopCart
-	},
+  },
+  components: {
+    CartControl,
+    ShopCart
+  },
   async mounted() {
     // 触发actions发送请求 +> 将获得数据更新到vuex数据状态管理的仓库中
     await this.$store.dispatch("getGoods");
     // 初始化滚动条
-		this._initScroll();
-		// 初始化tops数组
-		this._initTops();
+    this._initScroll();
+    // 初始化tops数组
+    this._initTops();
   },
   computed: {
     ...mapState({
@@ -117,32 +118,39 @@ export default {
   },
   methods: {
     _initScroll() {
-      new BScroll(".menu-wrapper");
-			// 右侧列表
+      new BScroll(".menu-wrapper", {
+        click: true
+      });
+      // 右侧列表
       this.rightScroll = new BScroll(".foods-wrapper", {
         click: true,
         probeType: 1
       });
-			
-			this.rightScroll.on('scroll',({y})=>{
-				this.scrollY = Math.abs(y);
-			});
-			this.rightScroll.on('scrollEnd',({y}) => {
-				this.scrollY = Math.abs(y);
-			})
-		},
-		_initTops(){
-			const tops = [];
-			let top = 0;
-			tops.push(top);
-			// 获取到右侧列表中的li
-			const lists = this.$refs.rightUl.children;
-			Array.prototype.slice.call(lists).forEach(list => {
-				top += list.clientHeight;
-				tops.push(top);
-			});
-			this.tops = tops;
-		}
+
+      this.rightScroll.on("scroll", ({ y }) => {
+        this.scrollY = Math.abs(y);
+      });
+      this.rightScroll.on("scrollEnd", ({ y }) => {
+        this.scrollY = Math.abs(y);
+      });
+    },
+    _initTops() {
+      const tops = [];
+      let top = 0;
+      tops.push(top);
+      // 获取到右侧列表中的li
+      const lists = this.$refs.rightUl.children;
+      Array.prototype.slice.call(lists).forEach(list => {
+        top += list.clientHeight;
+        tops.push(top);
+      });
+      this.tops = tops;
+    },
+    leftScroll(index) {
+      const scrollY = -this.tops[index];
+      this.scrollY = scrollY;
+      this.rightScroll.scrollTo(0, scrollY, 300);
+    }
   }
 };
 </script>

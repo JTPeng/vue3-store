@@ -107,7 +107,7 @@ export default {
   },
   mounted() {
     // this.$store.dispatch("getInfo");
-    // 滑屏
+    // 滑屏 是
     new BScroll(".shop-info");
     new BScroll(".pic-wrapper");
   },
