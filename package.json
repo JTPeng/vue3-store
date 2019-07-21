@@ -40,7 +40,9 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+			"generator-star-spacing": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }

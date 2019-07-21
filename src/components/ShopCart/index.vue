@@ -4,48 +4,122 @@
       <div class="content">
         <div class="content-left">
           <div class="logo-wrapper">
-            <div class="logo highlight">
-              <i class="iconfont icon-shopping_cart highlight"></i>
+            <div
+              class="logo"
+              :class="{ highlight: totalCount > 0 }"
+              @click="isShowCart"
+            >
+              <i
+                class="iconfont icon-shopping_cart"
+                :class="{ highlight: totalCount > 0 }"
+              ></i>
             </div>
-            <div class="num">1</div>
+            <div class="num" v-show="totalPrice">{{ totalCount }}</div>
           </div>
-          <div class="price highlight">￥10</div>
-          <div class="desc">另需配送费￥4元</div>
+          <div class="price" :class="{ highlight: totalCount > 0 }">
+            ￥{{ totalPrice }}
+          </div>
+          <div class="desc">另需配送费￥{{ info.deliveryPrice }}元</div>
         </div>
         <div class="content-right">
-          <div class="pay not-enough">
-            还差￥10元起送
+          <div class="pay" :class="payClass">
+            {{ payText }}
           </div>
         </div>
       </div>
-      <div class="shopcart-list" style="display: none;">
-        <div class="list-header">
-          <h1 class="title">购物车</h1>
-          <span class="empty">清空</span>
-        </div>
-        <div class="list-content">
-          <ul>
-            <li class="food">
-              <span class="name">红枣山药糙米粥</span>
-              <div class="price"><span>￥10</span></div>
-              <div class="cartcontrol-wrapper">
-                <div class="cartcontrol">
-                  <div class="iconfont icon-remove_circle_outline"></div>
-                  <div class="cart-count">1</div>
-                  <div class="iconfont icon-add_circle"></div>
+      <transition name="move">
+        <div class="shopcart-list" v-show="listShow">
+          <div class="list-header">
+            <h1 class="title">购物车</h1>
+            <span class="empty">清空</span>
+          </div>
+          <div class="list-content">
+            <ul>
+              <li class="food" v-for="(food, index) in cartFood" :key="index">
+                <span class="name">{{ food.name }}</span>
+                <div class="price">
+                  <span>￥{{ food.price }}</span>
                 </div>
-              </div>
-            </li>
-          </ul>
+                <div class="cartcontrol-wrapper">
+                  <CartControl :food="food" />
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
+      </transition>
     </div>
-    <div class="list-mask" style="display: none;"></div>
+    <transition name="fade">
+      <div class="list-mask" v-show="listShow" @click="isShowCart"></div>
+    </transition>
   </div>
-</template>
+</template>	
 
 <script>
-export default {};
+import { mapState, mapGetters } from "vuex";
+import BScroll from 'better-scroll';
+export default {
+  data() {
+    return {
+      isShow: false
+    };
+  },
+  computed: {
+    ...mapState({
+      cartFood: state => state.shop.cartFood,
+      info: state => state.shop.info
+    }),
+    ...mapGetters(["totalCount", "totalPrice"]),
+    // 显示的颜色设置
+    payClass() {
+      const { totalPrice } = this;
+      const { minPrice } = this.info;
+      return totalPrice < minPrice ? "not-enough" : "enough";
+    },
+    // 显示内容设置
+    payText() {
+      const { totalPrice } = this;
+      const { minPrice } = this.info;
+      if (totalPrice === 0) {
+        return `还差￥${minPrice}起送`;
+      } else if (totalPrice < minPrice) {
+        return `还差￥${minPrice - totalPrice}起送`;
+      } else {
+        return `去结算`;
+      }
+    },
+    // 控制底部显示还是不显示 => 解决购物车为0 仍然显示问题
+    listShow() {
+      const { totalCount } = this;
+      if (totalCount === 0) {
+				// 解决第二次点击时 isShow为true问题
+				// eslint-disable-next-line
+        this.isShow = false;
+        return false;
+      }
+			// 显示购物车时,创建滑动对象/实现滑动效果
+			// 相关的值发生改变,就会触发这个方法,会一直创建BScroll实例对象 =>导致数据的不准确 使用单例模式解决 单例模式=>只有唯一的一个实例对象
+			this.$nextTick(() => {
+        // 单例模式
+        if (!this.scroll) {
+					// eslint-disable-next-line
+          this.scroll = new BScroll(".list-content", {
+            click: true
+          });
+        }else{
+          // 存在-
+          this.scroll.refresh()  //刷新===
+        }
+      });
+      return this.isShow;
+    }
+  },
+  methods: {
+    isShowCart() {
+      this.isShow = !this.isShow;
+    }
+  }
+};
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus" scoped>
@@ -142,46 +216,52 @@ export default {};
     top 0
     z-index -1
     width 100%
-    .list-header
-      height 40px
-      line-height 40px
-      padding 0 18px
-      background #f3f5f7
-      border-bottom 1px solid rgba(7, 17, 27, 0.1)
-      .title
-        float left
+    transform translateY(-100%)
+  &.move-enter-active, &.move-leave-active
+    transition all 0.5s
+  &.move-enter, &.move-leave-to
+    opacity 0
+    transform translateY(0)
+  .list-header
+    height 40px
+    line-height 40px
+    padding 0 18px
+    background #f3f5f7
+    border-bottom 1px solid rgba(7, 17, 27, 0.1)
+    .title
+      float left
+      font-size 14px
+      color rgb(7, 17, 27)
+    .empty
+      float right
+      font-size 12px
+      color rgb(0, 160, 220)
+  .list-content
+    padding 0 18px
+    max-height 217px
+    overflow hidden
+    background #fff
+    .food
+      position relative
+      padding 12px 0
+      box-sizing border-box
+      bottom-border-1px(rgba(7, 17, 27, 0.1))
+      .name
+        line-height 24px
         font-size 14px
         color rgb(7, 17, 27)
-      .empty
-        float right
-        font-size 12px
-        color rgb(0, 160, 220)
-    .list-content
-      padding 0 18px
-      max-height 217px
-      overflow hidden
-      background #fff
-      .food
-        position relative
-        padding 12px 0
-        box-sizing border-box
-        bottom-border-1px(rgba(7, 17, 27, 0.1))
-        .name
-          line-height 24px
-          font-size 14px
-          color rgb(7, 17, 27)
-        .price
-          position absolute
-          right 90px
-          bottom 12px
-          line-height 24px
-          font-size 14px
-          font-weight 700
-          color rgb(240, 20, 20)
-        .cartcontrol-wrapper
-          position absolute
-          right 0
-          bottom 6px
+      .price
+        position absolute
+        right 90px
+        bottom 12px
+        line-height 24px
+        font-size 14px
+        font-weight 700
+        color rgb(240, 20, 20)
+      .cartcontrol-wrapper
+        position absolute
+        right 0
+        bottom 6px
 .list-mask
   position fixed
   top 0

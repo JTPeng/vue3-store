@@ -3,13 +3,13 @@
     <div class="goods">
       <!-- 左侧 -->
       <div class="menu-wrapper">
-        <ul>
+        <ul ref="left">
           <li
             class="menu-item"
             :class="{ current: currentIndex === index }"
             v-for="(good, index) in goods"
             :key="index"
-            @click="leftScroll(index)"
+            @click="leftScrollIndex(index)"
           >
             <img class="icon" :src="good.icon" v-if="good.icon" />
             <span class="text bottom-border-1px">{{ good.name }}</span>
@@ -84,17 +84,34 @@ export default {
     this._initScroll();
     // 初始化tops数组
     this._initTops();
-  },
+	},
+	// 计算属性,在初始化时调用,在相关数据发生变化时也会调用
   computed: {
     ...mapState({
       goods: state => state.shop.goods
     }),
+    // 计算索引值 => 实时获取最新的索引值
     currentIndex() {
       const { scrollY, tops } = this;
-      // 返回在区间的索引值
+      // 返回在区间的索引值(右侧)
       const index = tops.findIndex(
         (top, index) => scrollY >= top && scrollY < tops[index + 1]
-      );
+			);
+			// 左侧的索引值和右侧的索引值不一致时才保存索引值 =>索引值一致不需要滑动
+			// this.leftScroll 判断这个对象是否存在,解决初始化时拿不到this.leftScroll的问题
+      if (this.index !== index && this.leftScroll) {
+				// eslint-disable-next-line
+        this.index = index;
+        // 根据右侧返回的索引值,去左侧寻找相同的索引值的元素 => 滑动到对应的索引值的元素上
+				const li = this.$refs.left.children[index];
+        // 左侧滑动
+				// scrollToElement滑动到指定的元素处
+				/* 
+				直接这样书写会报错 =>计算属性,在初始化时调用,在相关数据发生变化时也会调用,由于上面使用的async mounted()页面没显示完该方法就调用,也就是mounted()内的相关方法还没有开始执行计算属性就已经执行了,此时拿不到this.leftScroll(也就是mounted()内执行的)
+				*/
+				this.leftScroll.scrollToElement(li, 300);   // 让li去移动
+      }
+
       return index;
     }
   },
@@ -130,11 +147,11 @@ export default {
       this.tops = tops;
     },
     // 左侧带动右侧联动
-    leftScroll(index) {
-      const scrollY = -this.tops[index];
+    leftScrollIndex(index) {
+      const scrollY = this.tops[index];
       // 解决左侧缓动延迟效果
       this.scrollY = scrollY;
-      this.rightScroll.scrollTo(0, scrollY, 300);
+      this.rightScroll.scrollTo(0, -scrollY, 300);
     },
     // 食物详细信息
     toggleFood(food) {

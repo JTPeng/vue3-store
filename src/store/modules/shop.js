@@ -6,7 +6,7 @@ import {
   REDUCE_FOOD_COUNT
 } from '../mutation-types.js';
 import { reqGoods, reqRatings, reqInfo } from '../../api';
-import  Vue  from 'vue';
+import Vue from 'vue';
 const state = {
   // mock
   // goods食品信息
@@ -16,7 +16,10 @@ const state = {
   ratings: [],
 
   // info商家信息
-  info: {}
+  info: {},
+
+  // 购物车食物数组
+  cartFood: []
 };
 
 const mutations = {
@@ -36,6 +39,7 @@ const mutations = {
   [ADD_FOOD_COUNT](state, { food }) {
     if (!food.count) {
       Vue.set(food, 'count', 1);
+      state.cartFood.push(food);
     } else {
       food.count++;
     }
@@ -43,6 +47,7 @@ const mutations = {
   // food.count--
   [REDUCE_FOOD_COUNT](state, { food }) {
     food.count--;
+    state.cartFood.splice(state.cartFood.indexOf(food), 1);
   }
 };
 
@@ -82,7 +87,19 @@ const actions = {
   }
 };
 
-const getters = {};
+const getters = {
+  // 总数量
+  totalCount(state) {
+    return state.cartFood.reduce((pre, food) => pre + food.count, 0);
+  },
+  // 总价格
+  totalPrice(state) {
+    return state.cartFood.reduce(
+      (pre, food) => pre + food.count * food.price,
+      0
+    );
+  }
+};
 
 export default {
   state,
