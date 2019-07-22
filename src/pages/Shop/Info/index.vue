@@ -32,63 +32,38 @@
           </div>
         </div>
       </section>
-      <div class="split"></div>
+      <Split />
 
       <section class="section">
         <h3 class="section-title">商家实景</h3>
         <div class="pic-wrapper">
-          <ul class="pic-list">
-            <li class="pic-item">
-              <img
-                width="120"
-                height="90"
-                src="https://fuss10.elemecdn.com/f/7f/d1422ec824a0a9d1fb879c57ab533jpeg.jpeg"
-              />
-            </li>
-            <li class="pic-item">
-              <img
-                width="120"
-                height="90"
-                src="https://fuss10.elemecdn.com/f/7f/d1422ec824a0a9d1fb879c57ab533jpeg.jpeg"
-              />
-            </li>
-            <li class="pic-item">
-              <img
-                width="120"
-                height="90"
-                src="https://fuss10.elemecdn.com/f/7f/d1422ec824a0a9d1fb879c57ab533jpeg.jpeg"
-              />
-            </li>
-            <li class="pic-item">
-              <img
-                width="120"
-                height="90"
-                src="https://fuss10.elemecdn.com/f/7f/d1422ec824a0a9d1fb879c57ab533jpeg.jpeg"
-              />
+          <ul class="pic-list" ref="picUl">
+            <li class="pic-item" v-for="(pic, index) in info.pics" :key="index">
+              <img width="120" height="90" :src="pic" />
             </li>
           </ul>
         </div>
       </section>
-      <div class="split"></div>
-
+      <Split />
+      <!-- 商家信息 -->
       <section class="section">
         <h3 class="section-title">商家信息</h3>
         <ul class="detail">
           <li>
             <span class="bold">品类</span>
-            <span>包子粥店, 简餐</span>
+            <span>{{ info.category }}</span>
           </li>
           <li>
             <span class="bold">商家电话</span>
-            <span>18501081111</span>
+            <span>{{ info.phone }}</span>
           </li>
           <li>
             <span class="bold">地址</span>
-            <span>北京市昌平区回龙观44号</span>
+            <span>{{ info.address }}</span>
           </li>
           <li>
             <span class="bold">营业时间</span>
-            <span>09:35-21:00</span>
+            <span>{{ info.workTime }}</span>
           </li>
         </ul>
       </section>
@@ -106,10 +81,34 @@ export default {
     };
   },
   mounted() {
-    // this.$store.dispatch("getInfo");
-    // 滑屏 是
-    new BScroll(".shop-info");
-    new BScroll(".pic-wrapper");
+    if (this.info.name) {
+      this._initScroll();
+    }
+  },
+  watch: {
+    info() {
+      this.$nextTick(() => {
+        this._initScroll();
+      });
+    }
+  },
+  methods: {
+    _initScroll() {
+      new BScroll(".shop-info", {
+        click: true
+      });
+      // 由于样式写死了ul的宽度,我们可以通过样式修改ul的宽度,或者通过JS的方法设置其宽度
+      const ul = this.$refs.picUl;
+      const liWidth = 120;
+      const space = 6;
+      const length = this.info.pics.length;
+      ul.style.width = (liWidth + space) * length - space + "px";
+      // better-scroll 默认水平方向上活动,所以需要添加一个配置scrollX:true
+      new BScroll(".pic-wrapper", {
+        click: true,
+        scrollX: true //水平滑动
+      });
+    }
   },
   computed: {
     ...mapState({

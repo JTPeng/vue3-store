@@ -2,8 +2,9 @@
   <div class="food" v-show="isShowFood">
     <div class="food-content">
       <div class="image-header">
+				<!-- v-if="isShowFood" => 解决点不同食物时,上一次图片会在点击下一次图片时出现问题(浏览器的缓存导致的),如果isShowFood为false,img标签就不会被加载就不会出现闪图问题 -->
         <img
-          :src="food.image"
+          v-lazy="food.image" v-if="isShowFood"
         />
         <p class="foodpanel-desc">{{food.info}}</p>
         <div class="back" @click="toggleShow">

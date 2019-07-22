@@ -49,7 +49,12 @@
               </div>
               <p class="text">{{ rating.text }}</p>
               <div class="recommend">
-                <span class="iconfont icon-thumb_up"></span>
+                <span
+                  class="iconfont"
+                  :class="
+                    rating.rateType === 0 ? 'icon-thumb_up' : 'icon-thumb_down'
+                  "
+                ></span>
               </div>
               <div class="time">{{ rating.rateTime | dateFormat }}</div>
             </div>

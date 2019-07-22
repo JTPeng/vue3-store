@@ -1,8 +1,14 @@
 // 引入组件
-import MSite from '../pages/MSite';
+/* import MSite from '../pages/MSite';
 import Order from '../pages/Order';
 import Search from '../pages/Search';
-import Profile from '../pages/Profile';
+import Profile from '../pages/Profile'; */
+// 路由懒加载
+const MSite = () =>import('../pages/MSite');
+const Order = () =>import('../pages/Order');
+const Search = () =>import('../pages/Search');
+const Profile = () =>import('../pages/Profile');
+
 import Login from '../pages/Login';
 import Shop from '../pages/Shop';
 import Goods from '../pages/Shop/Goods';
