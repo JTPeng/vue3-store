@@ -3,53 +3,55 @@
     <div class="ratings-content">
       <div class="overview">
         <div class="overview-left">
-          <h1 class="score">4.5</h1>
+          <h1 class="score">{{ info.score }}</h1>
           <div class="title">综合评分</div>
-          <div class="rank">高于周边商家90%</div>
+          <div class="rank">高于周边商家{{ info.rankRate }}%</div>
         </div>
         <div class="overview-right">
           <div class="score-wrapper">
             <span class="title">服务态度</span>
-            <div>Star组件</div>
-            <span class="score">4.4</span>
+            <!-- <div>Star组件</div> -->
+            <Star :scope="info.serviceScore" :size="36" />
+            <span class="score">{{ info.serviceScore }}</span>
           </div>
           <div class="score-wrapper">
             <span class="title">商品评分</span>
-            <div>Star组件</div>
-            <span class="score">4.6</span>
+            <!-- <div>Star组件</div> -->
+            <Star :scope="info.foodScore" :size="36" />
+            <span class="score">{{ info.foodScore }}</span>
           </div>
           <div class="delivery-wrapper">
             <span class="title">送达时间</span>
-            <span class="delivery">30分钟</span>
+            <span class="delivery">{{ info.deliveryTime }}分钟</span>
           </div>
         </div>
       </div>
 
-      <div class="split"></div>
-
-      <div>RatingSelect组件</div>
-
+      <!-- <div class="split"></div> -->
+      <Split />
+      <!-- <div>RatingSelect组件</div> -->
+      <RatingsFilter :onlyText="onlyText" :selectType="selectType" />
       <div class="rating-wrapper">
         <ul>
-          <li class="rating-item">
+          <li
+            class="rating-item"
+            v-for="(rating, index) in filterRatings"
+            :key="index"
+          >
             <div class="avatar">
-              <img
-                width="28"
-                height="28"
-                src="http://static.galileo.xiaojukeji.com/static/tms/default_header.png"
-              />
+              <img width="28" height="28" :src="rating.avatar" />
             </div>
             <div class="content">
-              <h1 class="name">xxx</h1>
+              <h1 class="name">{{ rating.username }}</h1>
               <div class="star-wrapper">
-                <div>Star组件</div>
-                <span class="delivery">30</span>
+                <Star :scope="rating.score" :size="24" />
+                <span class="delivery">{{ rating.deliveryTime }}</span>
               </div>
-              <p class="text">还可以</p>
+              <p class="text">{{ rating.text }}</p>
               <div class="recommend">
                 <span class="iconfont icon-thumb_up"></span>
               </div>
-              <div class="time">2016-12-11 12:02:13</div>
+              <div class="time">{{ rating.rateTime | dateFormat }}</div>
             </div>
           </li>
         </ul>
@@ -59,7 +61,58 @@
 </template>
 
 <script>
-export default {};
+import { mapState } from "vuex";
+import BScroll from "better-scroll";
+import RatingsFilter from "../../../components/RatingsFilter";
+export default {
+  data() {
+    return {
+      // 是否只显示有内容的
+      onlyText: true,
+      selectType: 1 // 2: 全部, 0: 推荐, 1: 吐槽
+    };
+  },
+  components: {
+    RatingsFilter
+  },
+  mounted() {
+    this.$nextTick(() => {
+      new BScroll(".ratings", {
+        click: true
+      });
+    });
+    // 绑定自定义监听
+    this.$eventBus.$on("setSelectType", this.setSelectType);
+    this.$eventBus.$on("toggleOnlyText", this.toggleOnlyText);
+  },
+  methods: {
+    setSelectType(type) {
+      this.selectType = type;
+    },
+    toggleOnlyText() {
+      this.onlyText = !this.onlyText;
+    }
+  },
+  computed: {
+    ...mapState({
+      info: state => state.shop.info,
+      ratings: state => state.shop.ratings
+    }),
+    // 过滤后的数组
+    filterRatings() {
+      // 取出相关数据
+      const { ratings, onlyText, selectType } = this;
+      // 计算产生结果数据, 并返回
+      return ratings.filter(rating => {
+        const { rateType, text } = rating;
+        return (
+          (selectType === 2 || selectType === rateType) &&
+          (!onlyText || text.length > 0)
+        );
+      });
+    }
+  }
+};
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus" scoped>

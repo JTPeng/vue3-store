@@ -18,7 +18,7 @@ export default {
   },
   async mounted() {
     // 获取地址数据对象
-    this.$store.dispatch("getAddress");
+		this.$store.dispatch("getAddress");
     // 发送请求获取用户信息---生成了session---sid----cookie--客户端---cookie(sid)------服务端(sid-----userId)
     const result = await reqUser();
 

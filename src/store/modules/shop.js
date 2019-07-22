@@ -65,7 +65,7 @@ const actions = {
     const result = await reqRatings();
     if (result.code === 0) {
       const ratings = result.data;
-      commit(RECEIVE_GOODS, { ratings });
+      commit(RECEIVE_RATINGS, { ratings });
     }
   },
   // info信息
@@ -96,6 +96,18 @@ const getters = {
   totalPrice(state) {
     return state.cartFood.reduce(
       (pre, food) => pre + food.count * food.price,
+      0
+    );
+  },
+  // 计算总商家评论数
+  totalRatings(state) {
+    return state.ratings.length;
+  },
+  // 总商家推荐评论数
+  positiveRatingsCount(state) {
+    // rating.rateType === 0 为商家推荐
+    return state.ratings.reduce(
+      (pre, rating) => pre + (rating.rateType === 0 ? 1 : 0),
       0
     );
   }
