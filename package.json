@@ -16,7 +16,7 @@
     "mockjs": "^1.0.1-beta3",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
-    "swiper": "^4.5.0",
+    "swiper": "^6.5.1",
     "vee-validate": "^2.2.13",
     "vue": "^2.6.10",
     "vue-router": "^3.0.7",
